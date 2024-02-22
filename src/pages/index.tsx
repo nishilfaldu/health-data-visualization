@@ -13,7 +13,7 @@ export default function Home() {
       className={`container flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
       <Navbar />
-      <BarChart dataUrl="data/national_health_data.csv" />
+      <BarChart dataUrl={"/data/national_health_data.csv"} />
 
     </main>
   );
