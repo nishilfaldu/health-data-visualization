@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef } from "react";
 
-import { Histogram } from "../../lib/Histogram";
+import { ScatterPlot } from "../../lib/ScatterPlot";
 
 
 
-interface BarChartProps {
+interface ScatterPlotProps {
   dataUrl: string;
   xAttribute?: string;
   yAttribute?: string;
 }
 
-export function BarChart({ dataUrl, xAttribute="display_name", yAttribute="median_household_income" } : BarChartProps) {
+export function ScatterPlot({ dataUrl, xAttribute="display_name", yAttribute="median_household_income" } : ScatterPlotProps) {
   const chartRef = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
-    const chart = new Histogram({
+    const chart = new ScatterPlot({
       parentElement: `#${chartRef.current?.id}` ?? "#chart-container",
       containerWidth: 1000,
       containerHeight: 400,

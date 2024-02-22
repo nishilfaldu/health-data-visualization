@@ -1,6 +1,5 @@
 import { Inter } from "next/font/google";
 
-import { BarChart } from "@/components/Charts/BarChart";
 import { Navbar } from "@/components/Navbar";
 
 
@@ -13,8 +12,8 @@ export default function Home() {
       className={`container flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
       <Navbar />
-      <BarChart dataUrl={"/data/national_health_data.csv"} />
-
+      {/* <BarChart dataUrl={"/data/national_health_data.csv"} /> */}
+      {/* <ScatterPlot dataUrl={"/data/national_health_data.csv"} /> */}
     </main>
   );
 }
