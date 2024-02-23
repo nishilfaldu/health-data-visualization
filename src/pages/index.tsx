@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 
+import { ScatterPlot } from "@/components/Charts/ScatterPlot";
 import { Navbar } from "@/components/Navbar";
 
 
@@ -13,7 +14,7 @@ export default function Home() {
     >
       <Navbar />
       {/* <BarChart dataUrl={"/data/national_health_data.csv"} /> */}
-      {/* <ScatterPlot dataUrl={"/data/national_health_data.csv"} /> */}
+      <ScatterPlot dataUrl={"/data/national_health_data.csv"} />
     </main>
   );
 }
