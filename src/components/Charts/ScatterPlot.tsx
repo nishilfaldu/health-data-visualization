@@ -12,7 +12,6 @@ interface ScatterPlotProps {
   yAttribute?: string;
 }
 
-const parseTime = d3.timeParse("%Y-%m-%d");
 
 export function ScatterPlot({ dataUrl, xAttribute="median_household_income", yAttribute="education_less_than_high_school_percent" } : ScatterPlotProps) {
   const chartRef = useRef<null | HTMLOrSVGElement>(null);

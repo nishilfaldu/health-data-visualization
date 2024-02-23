@@ -3,7 +3,7 @@ import * as d3 from "d3";
 
 
 
-export class Scatterplot {
+export class Histogram {
   /**
      * Class constructor with basic chart configuration
      * @param {Object}
@@ -16,7 +16,7 @@ export class Scatterplot {
       containerHeight: _config.containerHeight || 1000,
       margin: _config.margin || { top: 25, right: 20, bottom: 30, left: 50 },
     };
-    this.data = _data;
+    this.data = _data.splice(0, 10);
     this.initVis();
   }
 
@@ -29,42 +29,27 @@ export class Scatterplot {
     vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
 
-    vis.xScale = d3.scaleLinear()
-      .range([0, vis.width]).nice();
+    vis.xScale = d3.scaleBand()
+      .range([0, vis.width]);
 
     vis.yScale = d3.scaleLinear()
-      .range([vis.height, 0])
-      .nice();
-
-    // Initialize axes
-    vis.xAxis = d3.axisBottom(vis.xScale)
-      .ticks(6)
-      .tickSizeOuter(0)
-      .tickPadding(10);
-    //.tickFormat(d => d + ' km');
-
-    vis.yAxis = d3.axisLeft(vis.yScale)
-      .ticks(6)
-      .tickSizeOuter(0)
-      .tickPadding(10);
+      .range([vis.height, 0]);
 
     // Define size of SVG drawing area
     vis.svg = d3.select(vis.config.parentElement)
       .attr("width", vis.config.containerWidth)
       .attr("height", vis.config.containerHeight);
 
-    // Append group element that will contain our actual chart (see margin convention)
+    // Append group element that will contain our actual chart (see margin convention) - ?
     vis.chart = vis.svg.append("g")
       .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
     // Append empty x-axis group and move it to the bottom of the chart
     vis.xAxisG = vis.chart.append("g")
-      .attr("class", "axis x-axis")
       .attr("transform", `translate(0,${vis.height})`);
 
     // Append y-axis group
-    vis.yAxisG = vis.chart.append("g")
-      .attr("class", "axis y-axis");
+    vis.yAxisG = vis.chart.append("g");
   }
 
   /**
@@ -74,10 +59,11 @@ export class Scatterplot {
     const vis = this;
 
     // Set the scale input domains
-    vis.xScale.domain(d3.extent(vis.data, d => parseFloat(d[xAttribute])));
-    vis.yScale.domain(d3.extent(vis.data, d => parseFloat(d[yAttribute])));
+    vis.xScale.domain(vis.data.map(d => d[xAttribute]));
+    vis.yScale.domain([0, d3.max(vis.data, d => parseFloat(d[yAttribute]))]);
 
-    vis.renderVis();
+
+    vis.renderVis(xAttribute, yAttribute);
   }
 
   /**
@@ -85,21 +71,22 @@ export class Scatterplot {
      * Important: the chart is not interactive yet and renderVis() is intended
      * to be called only once; otherwise new paths would be added on top
      */
-  renderVis() {
+  renderVis(xAttribute, yAttribute) {
     const vis = this;
 
-    vis.svg
-      .selectAll("dot")
+    vis.svg.selectAll(".bar")
       .data(vis.data)
-      .enter()
-      .append("circle")
-      .attr("cx", d => vis.xScale(d.median_household_income))
-      .attr("cy", d => vis.yScale(d.education_less_than_high_school_percent))
-      .attr("r", 1.5)
-      .style("fill", "#69b3a2");
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", d => vis.xScale(d[xAttribute]))
+      .attr("y", d => vis.yScale(parseFloat(d[yAttribute])))
+      .attr("width", vis.xScale.bandwidth())
+      .attr("height", function(d) { return vis.height - vis.yScale(parseFloat(d[yAttribute])); });
+
+
 
     // Update the axes
-    vis.xAxisG.call(vis.xAxis);
-    vis.yAxisG.call(vis.yAxis);
+    vis.xAxisG.call(d3.axisBottom(vis.xScale));
+    vis.yAxisG.call(d3.axisLeft(vis.yScale));
   }
 }

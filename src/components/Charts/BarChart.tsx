@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as d3 from "d3";
 import React, { useEffect, useRef } from "react";
 
-import { Histogram } from "../../lib/Histogram";
+import { Histogram } from "@/lib/Histogram";
 
 
 
@@ -11,25 +12,24 @@ interface BarChartProps {
   yAttribute?: string;
 }
 
+
 export function BarChart({ dataUrl, xAttribute="display_name", yAttribute="median_household_income" } : BarChartProps) {
-  const chartRef = useRef<null | HTMLDivElement>(null);
+  const chartRef = useRef<null | HTMLOrSVGElement>(null);
 
   useEffect(() => {
-    const chart = new Histogram({
-      parentElement: `#${chartRef.current?.id}` ?? "#chart-container",
-      containerWidth: 1000,
-      containerHeight: 400,
-      url: dataUrl,
-      xAttribute: xAttribute,
-      yAttribute: yAttribute,
-    });
-    // chartRef.current = chart;
-
-    // chart.loadData(dataUrl).then((data: any) => {
-    //   console.log("data", data);
-    //   chart.updateVis(data, xAttribute, yAttribute);
-    //   chart.updateVis(data);
-    // });
+    d3.csv("data/national_health_data.csv")
+      .then(data => {
+        // console.log(data);
+        // data.forEach(d => {
+        //   d.close = parseFloat(d.close);  // Convert string to float
+        //   d.date = parseTime(d.date);     // Convert string to date object
+        // });
+        console.log(data);
+        // Initialize and render chart
+        const areaChart = new Histogram({ parentElement: "#bar-chart-container" }, data);
+        areaChart.updateVis(xAttribute, yAttribute);
+      })
+      .catch(error => console.error(error));
 
     return () => {
       // Cleanup
@@ -37,6 +37,6 @@ export function BarChart({ dataUrl, xAttribute="display_name", yAttribute="media
     };
   }, [dataUrl, xAttribute, yAttribute]);
 
-  return <div id="chart-container" ref={chartRef}></div>;
+  return <svg id="bar-chart-container" className="fill-none"></svg>;
 };
 

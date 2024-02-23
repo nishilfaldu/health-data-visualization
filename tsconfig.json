@@ -35,7 +35,7 @@
       "**/*.ts",
       "**/*.tsx",
       ".next/types/**/*.ts"
-, "tailwind.config.js", "src/lib/Scatterplot.js"    ],
+, "tailwind.config.js", "src/lib/Scatterplot.js", "src/lib/Histogram.js"    ],
     "exclude": [
       "node_modules",
       "scripts"
