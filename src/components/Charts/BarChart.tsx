@@ -1,33 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Select } from "antd";
 import * as d3 from "d3";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
-import { attributesInfoArray, processCountiesData } from "@/lib/data";
+import { processCountiesData } from "@/lib/data";
 import { Histogram } from "@/lib/Histogram";
 
 
 
 interface BarChartProps {
   dataUrl: string;
-  attribute?: string;
+  attribute: string;
 }
 
 
-export function BarChart({ dataUrl, attribute="median_household_income" } : BarChartProps) {
+export function BarChart({ dataUrl, attribute } : BarChartProps) {
   const chartRef = useRef<null | HTMLDivElement>(null);
-  const [selected, setSelected] = useState<string>(attribute);
-
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-    setSelected(value);
-  };
 
   useEffect(() => {
     d3.csv("data/national_health_data.csv")
       .then(data => {
         const processedData = processCountiesData(data);
-        const filteredData = processedData.filter(d => d[selected] !== -1);
+        const filteredData = processedData.filter(d => d[attribute] !== -1);
         console.log(filteredData);
 
         // Remove the previous chart
@@ -38,13 +31,13 @@ export function BarChart({ dataUrl, attribute="median_household_income" } : BarC
 
         // Initialize and render chart
         const barchart = new Histogram({ parentElement: "#bar-chart-container" }, filteredData);
-        barchart.updateVis(selected);
+        barchart.updateVis(attribute);
       })
       .catch(error => console.error(error));
-  }, [dataUrl, selected]);
+  }, [dataUrl, attribute]);
 
   return <>
-    <Select
+    {/* <Select
       defaultValue={attribute}
       style={{ width: 300 }}
       onChange={handleChange}
@@ -54,8 +47,8 @@ export function BarChart({ dataUrl, attribute="median_household_income" } : BarC
         })
       }
       size="large"
-    />
-    <div id="bar-chart-container" ref={chartRef}></div>;
+    /> */}
+    <div id="bar-chart-container" ref={chartRef}></div>
   </>;
 };
 

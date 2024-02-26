@@ -129,17 +129,17 @@ export const attributesInfo = {
 export const attributesInfoArray = [
   {
     value: "poverty_perc",
-    label: "Poverty (%)",
+    label: "Poverty",
     color: "#57B8FF",
   },
   {
     value: "median_household_income",
-    label: "Median Household Income ($)",
+    label: "Median Household Income",
     color: "#FF7557",
   },
   {
     value: "education_less_than_high_school_percent",
-    label: "Education Less Than High School (%)",
+    label: "Education Less Than High School",
     color: "#A0FF57",
   },
   {
@@ -154,22 +154,22 @@ export const attributesInfoArray = [
   },
   {
     value: "percent_inactive",
-    label: "Inactive (%)",
+    label: "Inactive",
     color: "#57FFD2",
   },
   {
     value: "percent_smoking",
-    label: "Smoking (%)",
+    label: "Smoking",
     color: "#E157FF",
   },
-  {
-    value: "urban_rural_status",
-    label: "Urban/Rural Status",
-    color: "#57FF7E",
-  },
+  //   {
+  //     value: "urban_rural_status",
+  //     label: "Urban/Rural Status",
+  //     color: "#57FF7E",
+  //   },
   {
     value: "elderly_percentage",
-    label: "Elderly (%)",
+    label: "Elderly",
     color: "#FF5793",
   },
   {
@@ -184,27 +184,27 @@ export const attributesInfoArray = [
   },
   {
     value: "percent_no_heath_insurance",
-    label: "No Health Insurance (%)",
+    label: "No Health Insurance",
     color: "#A457FF",
   },
   {
     value: "percent_high_blood_pressure",
-    label: "High Blood Pressure (%)",
+    label: "High Blood Pressure",
     color: "#FF57A4",
   },
   {
     value: "percent_coronary_heart_disease",
-    label: "Coronary Heart Disease (%)",
+    label: "Coronary Heart Disease",
     color: "#57FF97",
   },
   {
     value: "percent_stroke",
-    label: "Stroke (%)",
+    label: "Stroke",
     color: "#FF57D1",
   },
   {
     value: "percent_high_cholesterol",
-    label: "High Cholesterol (%)",
+    label: "High Cholesterol",
     color: "#5793FF",
   },
 ];
