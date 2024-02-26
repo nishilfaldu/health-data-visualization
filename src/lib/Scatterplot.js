@@ -19,6 +19,13 @@ export class Scatterplot {
       margin: _config.margin || { top: 20, right: 50, bottom: 50, left: 65 },
     };
     this.data = _data;
+    this.tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "svg-tooltip")
+      .style("position", "absolute")
+      .style("visibility", "hidden");
+
     this.initVis();
   }
 
@@ -110,7 +117,39 @@ export class Scatterplot {
       .attr("cx", d => vis.xScale(d[xAttribute]))
       .attr("cy", d => vis.yScale(d[yAttribute]))
       .attr("r", 3)
-      .style("fill", "#69b3a2");
+      .style("fill", `color-mix(in srgb, ${attributesInfo[xAttribute].color}, ${attributesInfo[yAttribute].color}`);
+
+    // tooltip functionality
+    d3.selectAll("circle.pt")
+      .on("mouseover", function (event, d) {
+        d3.select(this)
+          .transition()
+          .duration("50")
+          .attr("r", 6)
+          .style("fill", "black");
+        vis.tooltip
+          .style("visibility", "visible")
+          .html(
+            `<div>County: ${d["display_name"]}</div>
+                 <span>${attributesInfo[xAttribute].label}: ${d[xAttribute]}</span>
+                 <span>${attributesInfo[yAttribute].label}: ${d[yAttribute]}</span>`
+          )
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      })
+      .on("mousemove", function() {
+        vis.tooltip
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      })
+      .on("mouseout", function () {
+        d3.select(this)
+          .transition()
+          .duration("50")
+          .attr("r", 3)
+          .style("fill", `color-mix(in srgb, ${attributesInfo[xAttribute].color}, ${attributesInfo[yAttribute].color}`);
+        vis.tooltip.style("visibility", "hidden");
+      });
 
     // Update the axes
     vis.xAxisG.call(d3.axisBottom(vis.xScale));

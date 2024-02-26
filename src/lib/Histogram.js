@@ -19,6 +19,13 @@ export class Histogram {
       margin: _config.margin || { top: 20, right: 30, bottom: 50, left: 50 },
     };
     this.data = _data;
+    this.tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "svg-tooltip")
+      .style("position", "absolute")
+      .style("visibility", "hidden");
+
     this.initVis();
   }
 
@@ -129,6 +136,35 @@ export class Histogram {
       .attr("width", d => vis.xScale(d.x1) - vis.xScale(d.x0))
       .attr("height", d => vis.config.containerHeight - vis.yScale(d.length))
       .style("fill", attributesInfo[attribute].color);
+
+    //   tooltip functionality
+    d3.selectAll("rect")
+      .on("mouseover", function (event, d) {
+        d3.select(this).style("fill", "black");
+
+        vis.tooltip.style("visibility", "visible")
+          .html(
+            "<strong>Number of Counties: </strong>" +
+              d.length +
+              "<br>" +
+              "<strong>Range: </strong>" +
+              d.x0 +
+              " - " +
+              d.x1
+          )
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      })
+      .on("mouseout", function() {
+        d3.select(this).style("fill", attributesInfo[attribute].color);
+
+        vis.tooltip.style("visibility", "hidden");
+      })
+      .on("mousemove", function() {
+        vis.tooltip
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      });
 
     // Update the axes
     vis.xAxisG.call(d3.axisBottom(vis.xScale));
