@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import * as d3 from "d3";
 
+import { attributesInfo } from "./data";
+
 
 
 export class Scatterplot {
@@ -12,9 +14,9 @@ export class Scatterplot {
   constructor(_config, _data) {
     this.config = {
       parentElement: _config.parentElement,
-      containerWidth: _config.containerWidth || 1000,
-      containerHeight: _config.containerHeight || 1000,
-      margin: _config.margin || { top: 25, right: 20, bottom: 30, left: 50 },
+      containerWidth: _config.containerWidth || 450,
+      containerHeight: _config.containerHeight || 200,
+      margin: _config.margin || { top: 20, right: 50, bottom: 50, left: 65 },
     };
     this.data = _data;
     this.initVis();
@@ -26,45 +28,31 @@ export class Scatterplot {
   initVis() {
     const vis = this;
 
-    vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
-    vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
-
-    vis.xScale = d3.scaleLinear()
-      .range([0, vis.width]).nice();
-
-    vis.yScale = d3.scaleLinear()
-      .range([vis.height, 0])
-      .nice();
-
-    // Initialize axes
-    vis.xAxis = d3.axisBottom(vis.xScale)
-      .ticks(6)
-      .tickSizeOuter(0)
-      .tickPadding(10);
-    //.tickFormat(d => d + ' km');
-
-    vis.yAxis = d3.axisLeft(vis.yScale)
-      .ticks(6)
-      .tickSizeOuter(0)
-      .tickPadding(10);
+    // vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
+    // vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
 
     // Define size of SVG drawing area
     vis.svg = d3.select(vis.config.parentElement)
-      .attr("width", vis.config.containerWidth)
-      .attr("height", vis.config.containerHeight);
+      .append("svg")
+      .attr("width", vis.config.containerWidth + vis.config.margin.left + vis.config.margin.right)
+      .attr("height", vis.config.containerHeight + vis.config.margin.top + vis.config.margin.bottom);
 
     // Append group element that will contain our actual chart (see margin convention)
     vis.chart = vis.svg.append("g")
       .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
+    vis.xScale = d3.scaleLinear()
+      .range([0, vis.config.containerWidth]);
+
+    vis.yScale = d3.scaleLinear()
+      .range([vis.config.containerHeight, 0]);
+
     // Append empty x-axis group and move it to the bottom of the chart
     vis.xAxisG = vis.chart.append("g")
-      .attr("class", "axis x-axis")
-      .attr("transform", `translate(0,${vis.height})`);
+      .attr("transform", `translate(0,${vis.config.containerHeight})`);
 
     // Append y-axis group
-    vis.yAxisG = vis.chart.append("g")
-      .attr("class", "axis y-axis");
+    vis.yAxisG = vis.chart.append("g");
   }
 
   /**
@@ -72,12 +60,38 @@ export class Scatterplot {
      */
   updateVis(xAttribute, yAttribute) {
     const vis = this;
-
     // Set the scale input domains
-    vis.xScale.domain(d3.extent(vis.data, d => parseFloat(d[xAttribute])));
-    vis.yScale.domain(d3.extent(vis.data, d => parseFloat(d[yAttribute])));
+    vis.xScale.domain([0, d3.max(vis.data, d => d[xAttribute])]);
+    vis.yScale.domain([0, d3.max(vis.data, d => d[yAttribute])]);
 
-    vis.renderVis();
+    // Append y-axis label
+    vis.chart
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - vis.config.margin.left)
+      .attr("x", 0 - vis.config.containerHeight / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text(attributesInfo[yAttribute].label);
+
+    // Set a label for x-axis
+    vis.chart
+      .selectAll("text.xLabel")
+      .data([vis.attributeName])
+      .join("text")
+      .attr("class", "xLabel")
+      .attr(
+        "transform",
+        "translate(" +
+          vis.config.containerWidth / 2 +
+          " ," +
+          (vis.config.containerHeight + 35) +
+          ")"
+      )
+      .style("text-anchor", "middle")
+      .text(attributesInfo[xAttribute].label);
+
+    vis.renderVis(xAttribute, yAttribute);
   }
 
   /**
@@ -85,21 +99,21 @@ export class Scatterplot {
      * Important: the chart is not interactive yet and renderVis() is intended
      * to be called only once; otherwise new paths would be added on top
      */
-  renderVis() {
+  renderVis(xAttribute, yAttribute) {
     const vis = this;
 
-    vis.svg
-      .selectAll("dot")
+    vis.chart
+      .selectAll("circle.pt")
       .data(vis.data)
-      .enter()
-      .append("circle")
-      .attr("cx", d => vis.xScale(d.median_household_income))
-      .attr("cy", d => vis.yScale(d.education_less_than_high_school_percent))
-      .attr("r", 1.5)
+      .join("circle")
+      .attr("class", "pt")
+      .attr("cx", d => vis.xScale(d[xAttribute]))
+      .attr("cy", d => vis.yScale(d[yAttribute]))
+      .attr("r", 3)
       .style("fill", "#69b3a2");
 
     // Update the axes
-    vis.xAxisG.call(vis.xAxis);
-    vis.yAxisG.call(vis.yAxis);
+    vis.xAxisG.call(d3.axisBottom(vis.xScale));
+    vis.yAxisG.call(d3.axisLeft(vis.yScale));
   }
 }

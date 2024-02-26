@@ -85,7 +85,6 @@ export class Histogram {
 
     // console.log(vis.histogram);
     vis.bins = vis.histogram(vis.data);
-    console.log(vis.bins);
 
     vis.yScale.domain([0, d3.max(vis.bins, d => d.length)]);
 
