@@ -15,6 +15,7 @@ export default function Home() {
       <Navbar />
       <BarChart dataUrl={"/data/national_health_data.csv"} />
       {/* <ScatterPlot dataUrl={"/data/national_health_data.csv"} /> */}
+      {/* <Choropleth dataUrl={"/data/national_health_data.csv"} /> */}
     </main>
   );
 }

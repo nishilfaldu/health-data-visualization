@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import * as d3 from "d3";
 
-import { attributesInfo } from "./data";
 
 
-
-export class Histogram {
+export class Barchart {
   /**
      * Class constructor with basic chart configuration
      * @param {Object}
@@ -19,6 +17,8 @@ export class Histogram {
       margin: _config.margin || { top: 20, right: 30, bottom: 50, left: 50 },
     };
     this.data = _data;
+    this.urbanRuralStatuses = ["Urban", "Rural", "Small City", "Suburban"];
+    this.counts = [0, 0, 0, 0];
     this.initVis();
   }
 
@@ -28,26 +28,23 @@ export class Histogram {
   initVis() {
     const vis = this;
 
-    // Define size of SVG drawing area
-    // vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
-    // vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
+    vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
+    vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
+
+    vis.xScale = d3.scaleBand()
+      .range([0, vis.config.containerWidth]);
+
+    vis.yScale = d3.scaleLinear()
+      .range([vis.config.containerHeight, 0]);
 
     // Define size of SVG drawing area
     vis.svg = d3.select(vis.config.parentElement)
-      .append("svg")
       .attr("width", vis.config.containerWidth + vis.config.margin.left + vis.config.margin.right)
       .attr("height", vis.config.containerHeight + vis.config.margin.top + vis.config.margin.bottom);
 
     // Append group element that will contain our actual chart (see margin convention) - ?
     vis.chart = vis.svg.append("g")
       .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top})`);
-
-    // Setup the scales with ranges
-    vis.xScale = d3.scaleLinear()
-      .range([0, vis.config.containerWidth]);
-
-    vis.yScale = d3.scaleLinear()
-      .range([vis.config.containerHeight, 0]);
 
     // Append empty x-axis group and move it to the bottom of the chart
     vis.xAxisG = vis.chart.append("g")
@@ -57,7 +54,7 @@ export class Histogram {
     vis.yAxisG = vis.chart.append("g");
 
     // Append y-axis label
-    vis.chart
+    vis.svg
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 0 - vis.config.margin.left)
@@ -65,31 +62,41 @@ export class Histogram {
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Number of Counties");
+
+    // Append x-axis label
+    vis.svg
+      .append("text")
+      .attr("transform",
+        `translate(${vis.config.containerWidth / 2},${vis.config.containerHeight + 35})`)
+      .style("text-anchor", "middle")
+      .text("something"); // edit this
   }
 
   /**
      * Prepare the data and scales before we render it.
      */
-  updateVis(attribute) {
+  updateVis(xAttribute, yAttribute) {
     const vis = this;
 
+
+    vis.data.forEach(d => {
+      if (d[xAttribute] === "Urban") {
+        vis.counts[0] += parseInt(d[yAttribute]);
+      } else if (d[xAttribute] === "Rural") {
+        vis.counts[1] += parseInt(d[yAttribute]);
+      } else if (d[xAttribute] === "Small City") {
+        vis.counts[2] += parseInt(d[yAttribute]);
+      } else if (d[xAttribute] === "Suburban") {
+        vis.counts[3] += parseInt(d[yAttribute]);
+      }
+    });
+
     // Set the scale input domains
-    vis.xScale.domain([0, d3.max(vis.data, d => d[attribute])]);
+    vis.yScale.domain([0, d3.max(vis.counts)]);
+    vis.xScale.domain(vis.urbanRuralStatuses);
 
-    // console.log(vis.xScale.domain(), "domain");
 
-    vis.histogram = d3.histogram()
-      .value(d => d[attribute])
-      .domain(vis.xScale.domain())
-      .thresholds(vis.xScale.ticks(50));
-
-    // console.log(vis.histogram);
-    vis.bins = vis.histogram(vis.data);
-    console.log(vis.bins);
-
-    vis.yScale.domain([0, d3.max(vis.bins, d => d.length)]);
-
-    vis.renderVis(attribute);
+    vis.renderVis(xAttribute, yAttribute);
   }
 
   /**
@@ -97,39 +104,20 @@ export class Histogram {
      * Important: the chart is not interactive yet and renderVis() is intended
      * to be called only once; otherwise new paths would be added on top
      */
-  renderVis(attribute) {
+  renderVis(xAttribute, yAttribute) {
     const vis = this;
 
-    // Set a label for x-axis
-    vis.chart
-      .selectAll("text.xLabel")
-      .data([vis.attributeName])
-      .join("text")
-      .attr("class", "xLabel")
-      .attr(
-        "transform",
-        "translate(" +
-          vis.config.containerWidth / 2 +
-          " ," +
-          (vis.config.containerHeight + 35) +
-          ")"
-      )
-      .style("text-anchor", "middle")
-      .text(attributesInfo[attribute].label);
-
-    // console.log(vis.xScale(8));
-
-    // Bind data to visual elements
-    vis.chart
-      .selectAll("rect.bar")
-      .data(vis.bins)
+    vis.svg.selectAll("rect.bar")
+      .data(vis.counts)
       .join("rect")
       .attr("class", "bar")
-      .attr("x", 1)
-      .attr("transform", d => `translate(${vis.xScale(d.x0)}, ${vis.yScale(d.length)})`)
-      .attr("width", d => vis.xScale(d.x1) - vis.xScale(d.x0))
-      .attr("height", d => vis.config.containerHeight - vis.yScale(d.length))
-      .style("fill", attributesInfo[attribute].color);
+      .attr("x", (d, idx) => vis.xScale(vis.urbanRuralStatuses[idx]))
+      .attr("y", d => vis.yScale(d))
+      .attr("width", vis.xScale.bandwidth())
+      .attr("height", function(d) { return vis.config.containerHeight - vis.yScale(d); })
+      .attr("fill", "steelblue");
+
+
 
     // Update the axes
     vis.xAxisG.call(d3.axisBottom(vis.xScale));
