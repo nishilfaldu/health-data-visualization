@@ -18,7 +18,8 @@
     "autoprefixer": "10.4.17",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "d3": "^7.8.5",
+    "d3": "^6.0.0",
+    "d3-geo": "^3.1.0",
     "eslint": "8.56.0",
     "eslint-config-next": "14.1.0",
     "lucide-react": "^0.336.0",
@@ -35,6 +36,7 @@
     "typescript-eslint": "^7.0.2"
   },
   "devDependencies": {
-    "@types/d3": "^7.4.3"
+    "@types/d3": "^7.4.3",
+    "@types/topojson-client": "^3.1.4"
   }
 }

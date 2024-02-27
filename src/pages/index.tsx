@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { useState } from "react";
 
 import { BarChart } from "@/components/Charts/BarChart";
+import { Choropleth } from "@/components/Charts/ChoroplethMap";
 import { ScatterPlot } from "@/components/Charts/ScatterPlot";
 import { Navbar } from "@/components/Navbar";
 import { attributesInfoArray } from "@/lib/data";
@@ -66,7 +67,10 @@ export default function Home() {
         <BarChart dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst}/>
         <ScatterPlot dataUrl={"/data/national_health_data.csv"} xAttribute={selectedFirst} yAttribute={selectedSecond}/>
       </div>
-      {/* <Choropleth dataUrl={"/data/national_health_data.csv"} /> */}
+      <div className="flex flex-row">
+        <Choropleth dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst} num={1}/>
+        <Choropleth dataUrl={"/data/national_health_data.csv"} attribute={selectedSecond} num={2}/>
+      </div>
     </main>
   );
 }

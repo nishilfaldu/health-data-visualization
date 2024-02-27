@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function processCountiesData(countiesData: any[]): any[] {
   return countiesData.map(d => ({
     cnty_fips: +d.cnty_fips,
@@ -46,7 +47,6 @@ export const attributesAvailable = [
   "park_access",
   "percent_inactive",
   "percent_smoking",
-  "urban_rural_status",
   "elderly_percentage",
   "number_of_hospitals",
   "number_of_primary_care_physicians",
@@ -162,11 +162,6 @@ export const attributesInfoArray = [
     label: "Smoking",
     color: "#E157FF",
   },
-  //   {
-  //     value: "urban_rural_status",
-  //     label: "Urban/Rural Status",
-  //     color: "#57FF7E",
-  //   },
   {
     value: "elderly_percentage",
     label: "Elderly",

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as d3 from "d3";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 
 import { ChoroplethMap } from "@/lib/ChoroplethMap";
 import { attributesAvailable, processCountiesData } from "@/lib/data";
@@ -9,13 +9,12 @@ import { attributesAvailable, processCountiesData } from "@/lib/data";
 
 interface ChoroplethProps {
   dataUrl: string;
-  attribute?: string;
+  attribute: string;
+  num: number;
 }
 
 
-export function Choropleth({ dataUrl, attribute="education_less_than_high_school_percent" } : ChoroplethProps) {
-  const chartRef = useRef<null | HTMLOrSVGElement>(null);
-
+export function Choropleth({ dataUrl, attribute, num } : ChoroplethProps) {
   useEffect(() => {
     Promise.all([
       d3.json("data/counties-10m.json"),
@@ -23,32 +22,36 @@ export function Choropleth({ dataUrl, attribute="education_less_than_high_school
     ]).then(data => {
       const geoData: any = data[0];
       const countiesData = data[1];
-      console.log(geoData);
+      const filteredData = processCountiesData(countiesData);
+      //   const filteredData = processedData.filter(d => d[attribute] !== -1);
+      console.log(filteredData, "filteredData");
+      console.log(geoData, "geoData");
       //   Process the countiesData
-      const processedData = processCountiesData(countiesData);
-      console.log(processedData);
       // Combine the datasets
-      geoData.objects.counties.geometries.forEach(geo => {
-        processedData.forEach(county => {
+      geoData.objects.counties.geometries.forEach((geo: any) => {
+        filteredData.forEach(county => {
           // If the IDs match, add all of the attributes data
           if (geo.id == county.cnty_fips) {
-            attributesAvailable.forEach(attribute => {
-              geo.properties[attribute] = county[attribute];
+            attributesAvailable.forEach(attr => {
+              geo.properties[attr] = county[attr];
             });
           }
         });
       });
 
-      const _choroplethMap = new ChoroplethMap({ parentElement: "#choropleth-chart-container" }, geoData, 1, attribute);
-      _choroplethMap.updateVis();
-    }).catch(error => console.error(error));
+      console.log(geoData, "geoData after adding properties");
 
-    return () => {
-      // Cleanup
-      chartRef.current = null;
-    };
-  }, [dataUrl, attribute]);
+      // Remove the previous chart
+      const chartContainer = document.getElementById(`choropleth-chart-container-${num}`);
+      if (chartContainer && chartContainer.firstChild) {
+        chartContainer.removeChild(chartContainer.firstChild);
+      }
 
-  return <svg id="choropleth-chart-container" className="fill-none"></svg>;
+      const choropleth = new ChoroplethMap({ parentElement: `#choropleth-chart-container-${num}` }, geoData, attribute, num);
+      choropleth.updateVis(attribute);
+    });
+  }, [dataUrl, attribute, num]);
+
+  return <div id={`choropleth-chart-container-${num}`}></div>;
 };
 
