@@ -12,7 +12,7 @@ export class ChoroplethMap {
 //      * @param {Object}
 //      * @param {Array}
 //      */
-  constructor(_config, _geoData, _attribute, _num) {
+  constructor(_config, _geoData, _attribute, _num, _dataStore) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 800,
@@ -35,7 +35,7 @@ export class ChoroplethMap {
     this.data = _geoData;
 
     this.num = _num;
-
+    this.brushedCounties = [];
     this.attribute = _attribute;
 
     // this.active = d3.select(null);
@@ -126,17 +126,16 @@ export class ChoroplethMap {
       .attr("height", vis.config.legendRectHeight);
 
 
-    //   vis.brushG = vis.g.append("g").attr("class", "brush");
+    vis.brushG = vis.g.append("g").attr("class", "brush");
 
-    // vis.brush = d3
-    //   .brush()
-    //   .extent([
-    //     [0, 0],
-    //     [vis.config.containerWidth, vis.config.containerHeight],
-    //   ])
-    //   // Reset the filtered counties
-    //   .on("start", () => (filteredCounties = []))
-    //   .on("end", (result) => vis.filterBySelection(result, vis));
+    vis.brush = d3
+      .brush()
+      .extent([
+        [0, 0],
+        [vis.config.containerWidth, vis.config.containerHeight],
+      ])
+      .on("start", () => (this.brushedCounties = []))
+      .on("end", result => vis.brushed(result, vis));
 
     vis.countiesGroup = vis.g.append("g").attr("id", "counties");
 
@@ -172,20 +171,6 @@ export class ChoroplethMap {
       )
       .range(["#ffffff", attributesInfo[attribute].color]) // ?
       .interpolate(d3.interpolateHcl);
-
-    vis.counties = vis.countiesGroup
-      .selectAll("path")
-      .data(topojson.feature(vis.data, vis.data.objects.counties).features)
-      .join("path")
-      .attr("d", vis.path)
-      .style("fill", d => {
-        const coloredOrStripe =
-          d.properties[attribute] != -1
-            ? vis.colorScale(d.properties[attribute])
-            : "#ff0000";
-
-        return coloredOrStripe;
-      });
 
     vis.legendStops = [
       {
@@ -249,6 +234,26 @@ export class ChoroplethMap {
   renderVis(attribute) {
     const vis = this;
 
+    vis.counties = vis.countiesGroup
+      .selectAll("path")
+      .data(topojson.feature(vis.data, vis.data.objects.counties).features)
+      .join("path")
+      .attr("d", vis.path)
+      .style("fill", d => {
+        const customColor =
+        d.properties[attribute] != -1
+          ? vis.colorScale(d.properties[attribute])
+          : "#ff0000";
+
+        return this.brushedCounties.length !== 0
+          ? this.brushedCounties.find(
+            county => county == d.properties.cnty_fips
+          )
+            ? customColor
+            : "gray"
+          : customColor;
+      });
+
     vis.counties
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "black");
@@ -256,7 +261,7 @@ export class ChoroplethMap {
           .html(
             `<strong>${d.properties["display_name"]} </strong>` +
               "<br>" +
-              `<strong>Value: ${d.properties[attribute]}</strong>`
+              `<strong>Value: ${d.properties[attribute] == -1 ? "data not defined" : d.properties[attribute]}</strong>`
           )
           .style("top", event.pageY - 10 + "px")
           .style("left", event.pageX + 10 + "px");
@@ -269,6 +274,60 @@ export class ChoroplethMap {
         vis.tooltip
           .style("top", event.pageY - 10 + "px")
           .style("left", event.pageX + 10 + "px");
+      })
+      .on("mousedown", function (event) {
+        vis.svg
+          .select(".overlay")
+          .node()
+          .dispatchEvent(
+            new MouseEvent("mousedown", {
+              bubbles: true,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              pageX: event.pageX,
+              pageY: event.pageY,
+              layerX: event.layerX,
+              layerY: event.layerY,
+              cancelable: true,
+              view: window,
+            })
+          );
       });
+
+
+    vis.brushG.call(vis.brush);
+  }
+
+  brushed(_res, _vis) {
+    if (!_res.sourceEvent) { return; }
+
+    const extent = _res.selection;
+
+    if (!extent) {
+      this.brushedCounties = [];
+    } else {
+      this.brushedCounties = topojson
+        .feature(_vis.data, _vis.data.objects.counties)
+        .features.filter(d => {
+          // Use the path generator to create a bounding box for each county
+          const boundingBox = _vis.path.bounds(d);
+          const xMin = boundingBox[0][0];
+          const yMin = boundingBox[0][1];
+          const xMax = boundingBox[1][0];
+          const yMax = boundingBox[1][1];
+
+          return (
+            xMax >= extent[0][0] &&
+              xMin <= extent[1][0] &&
+              yMax >= extent[0][1] &&
+              yMin <= extent[1][1]
+          );
+        })
+        .map(d => d.properties.cnty_fips);
+
+      this.renderVis(this.attribute);
+    }
+
+    // call update function here to change all visualizations
   }
 }

@@ -2,6 +2,7 @@
 import * as d3 from "d3";
 import React, { useEffect } from "react";
 
+import type { CentralDataStore } from "@/lib/CentralDataStore";
 import { processCountiesData } from "@/lib/data";
 import { Scatterplot } from "@/lib/Scatterplot";
 
@@ -11,10 +12,11 @@ interface ScatterPlotProps {
   dataUrl: string;
   xAttribute: string;
   yAttribute: string;
+  dataStore: CentralDataStore;
 }
 
 
-export function ScatterPlot({ dataUrl, xAttribute, yAttribute } : ScatterPlotProps) {
+export function ScatterPlot({ dataUrl, xAttribute, yAttribute, dataStore } : ScatterPlotProps) {
   useEffect(() => {
     d3.csv("data/national_health_data.csv")
       .then(data => {
@@ -31,11 +33,11 @@ export function ScatterPlot({ dataUrl, xAttribute, yAttribute } : ScatterPlotPro
         }
 
         // Initialize and render chart
-        const scatterplot = new Scatterplot({ parentElement: "#scatter-chart-container" }, _filteredData);
+        const scatterplot = new Scatterplot({ parentElement: "#scatter-chart-container" }, _filteredData, xAttribute, yAttribute, dataStore);
         scatterplot.updateVis(xAttribute, yAttribute);
       })
       .catch(error => console.error(error));
-  }, [dataUrl, xAttribute, yAttribute]);
+  }, [dataUrl, xAttribute, yAttribute, dataStore]);
 
   return <div id="scatter-chart-container"></div>;
 };

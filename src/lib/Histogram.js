@@ -11,7 +11,7 @@ export class Histogram {
      * @param {Object}
      * @param {Array}
      */
-  constructor(_config, _data) {
+  constructor(_config, _data, _attribute, _dataStore) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 300,
@@ -25,6 +25,12 @@ export class Histogram {
       .attr("class", "svg-tooltip")
       .style("position", "absolute")
       .style("visibility", "hidden");
+
+    this.brushedCounties = [];
+    this.attribute = _attribute;
+
+    this.dataStore = _dataStore;
+    this.dataStore.subscribe(this);
 
     this.initVis();
   }
@@ -72,6 +78,19 @@ export class Histogram {
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Number of Counties");
+
+    //   brush element
+    vis.brushG = vis.chart.append("g").attr("class", "brush");
+
+    //   brush
+    vis.brush = d3
+      .brushX()
+      .extent([
+        [0, 0],
+        [vis.config.containerWidth, vis.config.containerHeight],
+      ])
+      .on("start", () => (vis.brushedCounties = []))
+      .on("end", result => vis.brushed(result, vis));
   }
 
   /**
@@ -80,8 +99,19 @@ export class Histogram {
   updateVis(attribute) {
     const vis = this;
 
+    vis.brushedData = this.data.filter(
+      d =>
+        d[this.attribute] != -1 &&
+          (vis.brushedCounties.length == 0 ||
+            (vis.brushedCounties.length != 0 &&
+              vis.brushedCounties.find(
+                country => country == d.cnty_fips
+              )))
+    );
+
+    console.log(vis.brushedData, "brushedData");
     // Set the scale input domains
-    vis.xScale.domain([0, d3.max(vis.data, d => d[attribute])]);
+    vis.xScale.domain([0, d3.max(vis.brushedData, d => d[attribute])]);
 
     // console.log(vis.xScale.domain(), "domain");
 
@@ -91,7 +121,7 @@ export class Histogram {
       .thresholds(vis.xScale.ticks(50));
 
     // console.log(vis.histogram);
-    vis.bins = vis.histogram(vis.data);
+    vis.bins = vis.histogram(vis.brushedData);
 
     vis.yScale.domain([0, d3.max(vis.bins, d => d.length)]);
 
@@ -109,7 +139,7 @@ export class Histogram {
     // Set a label for x-axis
     vis.chart
       .selectAll("text.xLabel")
-      .data([vis.attributeName])
+      .data([vis.attribute])
       .join("text")
       .attr("class", "xLabel")
       .attr(
@@ -138,7 +168,7 @@ export class Histogram {
       .style("fill", attributesInfo[attribute].color);
 
     //   tooltip functionality
-    d3.selectAll("rect")
+    d3.selectAll("rect.bar")
       .on("mouseover", function (event, d) {
         d3.select(this).style("fill", "black");
 
@@ -164,10 +194,59 @@ export class Histogram {
         vis.tooltip
           .style("top", event.pageY - 10 + "px")
           .style("left", event.pageX + 10 + "px");
+      })
+      .on("mousedown", function (event) {
+        vis.chart
+          .select(".overlay")
+          .node()
+          .dispatchEvent(
+            new MouseEvent("mousedown", {
+              bubbles: true,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              pageX: event.pageX,
+              pageY: event.pageY,
+              view: window,
+              layerX: event.layerX,
+              layerY: event.layerY,
+              cancelable: true,
+            })
+          );
       });
+
+    vis.brushG.call(vis.brush);
 
     // Update the axes
     vis.xAxisG.call(d3.axisBottom(vis.xScale));
     vis.yAxisG.call(d3.axisLeft(vis.yScale));
+  }
+
+  brushed(_res, _vis) {
+    if (!_res.sourceEvent) { return; }
+
+    const extent = _res.selection;
+
+    if (!extent) {
+      this.brushedCounties = [];
+    } else {
+      const range = [_vis.xScale.invert(extent[0]), _vis.xScale.invert(extent[1])];
+
+      this.brushedCounties = this.data
+        .filter(d => {
+          const attrVal = d[this.attribute];
+
+          return attrVal >= range[0] && attrVal <= range[1];
+        })
+        .map(d => d.cnty_fips);
+
+      this.updateVis(this.attribute);
+    }
+    _vis.brushG.call(_vis.brush.move, null);
+    // call update function here to change all visualizations
+  }
+
+  update(data) {
+    this.data = data;
+    this.updateVis(this.attribute);
   }
 }

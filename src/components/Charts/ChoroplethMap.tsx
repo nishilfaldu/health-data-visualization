@@ -2,6 +2,7 @@
 import * as d3 from "d3";
 import React, { useEffect } from "react";
 
+import type { CentralDataStore } from "@/lib/CentralDataStore";
 import { ChoroplethMap } from "@/lib/ChoroplethMap";
 import { attributesAvailable, processCountiesData } from "@/lib/data";
 
@@ -11,10 +12,11 @@ interface ChoroplethProps {
   dataUrl: string;
   attribute: string;
   num: number;
+  dataStore: CentralDataStore;
 }
 
 
-export function Choropleth({ dataUrl, attribute, num } : ChoroplethProps) {
+export function Choropleth({ dataUrl, attribute, num, dataStore } : ChoroplethProps) {
   useEffect(() => {
     Promise.all([
       d3.json("data/counties-10m.json"),
@@ -47,7 +49,7 @@ export function Choropleth({ dataUrl, attribute, num } : ChoroplethProps) {
         chartContainer.removeChild(chartContainer.firstChild);
       }
 
-      const choropleth = new ChoroplethMap({ parentElement: `#choropleth-chart-container-${num}` }, geoData, attribute, num);
+      const choropleth = new ChoroplethMap({ parentElement: `#choropleth-chart-container-${num}` }, geoData, attribute, num, dataStore);
       choropleth.updateVis(attribute);
     });
   }, [dataUrl, attribute, num]);

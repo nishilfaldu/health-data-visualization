@@ -11,7 +11,7 @@ export class Scatterplot {
      * @param {Object}
      * @param {Array}
      */
-  constructor(_config, _data) {
+  constructor(_config, _data, _xAttribute, _yAttribute, _dataStore) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
@@ -25,6 +25,13 @@ export class Scatterplot {
       .attr("class", "svg-tooltip")
       .style("position", "absolute")
       .style("visibility", "hidden");
+
+    this.brushedCounties = [];
+    this.xAttribute = _xAttribute;
+    this.yAttribute = _yAttribute;
+
+    this.dataStore = _dataStore;
+    this.dataStore.subscribe(this);
 
     this.initVis();
   }
@@ -60,6 +67,18 @@ export class Scatterplot {
 
     // Append y-axis group
     vis.yAxisG = vis.chart.append("g");
+
+    vis.brushG = vis.chart.append("g").attr("class", "brush");
+
+    vis.brush = d3
+      .brush()
+      .extent([
+        [0, 0],
+        [vis.config.containerWidth, vis.config.containerHeight],
+      ])
+      // Reset the filtered counties
+      .on("start", () => (vis.brushedCounties = []))
+      .on("end", result => vis.brushed(result, vis));
   }
 
   /**
@@ -67,6 +86,7 @@ export class Scatterplot {
      */
   updateVis(xAttribute, yAttribute) {
     const vis = this;
+
     // Set the scale input domains
     vis.xScale.domain([0, d3.max(vis.data, d => d[xAttribute])]);
     vis.yScale.domain([0, d3.max(vis.data, d => d[yAttribute])]);
@@ -117,7 +137,16 @@ export class Scatterplot {
       .attr("cx", d => vis.xScale(d[xAttribute]))
       .attr("cy", d => vis.yScale(d[yAttribute]))
       .attr("r", 3)
-      .style("fill", `color-mix(in srgb, ${attributesInfo[xAttribute].color}, ${attributesInfo[yAttribute].color}`);
+      .style("fill", `color-mix(in srgb, ${attributesInfo[xAttribute].color}, ${attributesInfo[yAttribute].color}`)
+      .style("fill-opacity", d =>
+        (
+          vis.brushedCounties.length !== 0 ?
+            (vis.brushedCounties.find(
+              county => county == d.cnty_fips
+            ) ? 1 : 0.1) : 1
+        )
+      );
+
 
     // tooltip functionality
     d3.selectAll("circle.pt")
@@ -149,10 +178,62 @@ export class Scatterplot {
           .attr("r", 3)
           .style("fill", `color-mix(in srgb, ${attributesInfo[xAttribute].color}, ${attributesInfo[yAttribute].color}`);
         vis.tooltip.style("visibility", "hidden");
+      }).on("mousedown", function (event) {
+        vis.chart
+          .select(".overlay")
+          .node()
+          .dispatchEvent(
+            new MouseEvent("mousedown", {
+              bubbles: true,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              pageX: event.pageX,
+              pageY: event.pageY,
+              view: window,
+              layerX: event.layerX,
+              layerY: event.layerY,
+              cancelable: true,
+            })
+          );
       });
+
 
     // Update the axes
     vis.xAxisG.call(d3.axisBottom(vis.xScale));
     vis.yAxisG.call(d3.axisLeft(vis.yScale));
+
+    vis.brushG.call(vis.brush);
+  }
+
+  brushed(_res, _vis) {
+    if (!_res.sourceEvent) { return; } // Only transition after input
+
+    const extent = _res.selection;
+
+    if (!extent) {
+      // Reset the counties filter (include them all)
+      this.brushedCounties = [];
+    } else {
+      // Filter the counties
+      const xRange = [_vis.xScale.invert(extent[0][0]), _vis.xScale.invert(extent[1][0])];
+      const yRange = [_vis.yScale.invert(extent[1][1]), _vis.yScale.invert(extent[0][1])];
+
+      this.brushedCounties = this.data
+        .filter(d => {
+          const attribute1 = d[this.xAttribute];
+          const attribute2 = d[this.yAttribute];
+
+          return (
+            attribute2 >= yRange[0] &&
+            attribute2 <= yRange[1] &&
+            attribute1 >= xRange[0] &&
+            attribute1 <= xRange[1]
+          );
+        })
+        .map(d => d.cnty_fips);
+
+      this.updateVis(this.xAttribute, this.yAttribute);
+    }
+    _vis.brushG.call(_vis.brush.move, null);
   }
 }
