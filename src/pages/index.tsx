@@ -1,5 +1,8 @@
 import { Select } from "antd";
+// import dynamic from "next/dynamic";
+import dynamic from "next/dynamic";
 import { Inter } from "next/font/google";
+// import type { ComponentType } from "react";
 import { useState } from "react";
 
 import { BarChart } from "@/components/Charts/BarChart";
@@ -11,6 +14,14 @@ import { CentralDataStore } from "@/lib/CentralDataStore";
 import { attributesInfoArray } from "@/lib/data";
 
 
+// Define the loader component with the correct type
+// const loader: () => Promise<{ default: ComponentType }> = () => import("@/components/Charts/BarChart");
+
+// Import the component dynamically
+const DynamicBarChart = dynamic(() => Promise.resolve(BarChart), { ssr: false });
+const DynamicChoropleth = dynamic(() => Promise.resolve(Choropleth), { ssr: false });
+const DynamicChoroplethCopy = dynamic(() => Promise.resolve(ChoroplethCopy), { ssr: false });
+const DynamicScatterPlot = dynamic(() => Promise.resolve(ScatterPlot), { ssr: false });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -68,12 +79,12 @@ export default function Home() {
 
       </div>
       <div className="flex flex-row">
-        <BarChart dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst} dataStore={centralDataStore}/>
-        <ScatterPlot dataUrl={"/data/national_health_data.csv"} xAttribute={selectedFirst} yAttribute={selectedSecond} dataStore={centralDataStore}/>
+        <DynamicBarChart dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst} dataStore={centralDataStore}/>
+        <DynamicScatterPlot dataUrl={"/data/national_health_data.csv"} xAttribute={selectedFirst} yAttribute={selectedSecond} dataStore={centralDataStore}/>
       </div>
       <div className="flex flex-row">
-        <Choropleth dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst} num={1} dataStore={centralDataStore}/>
-        <ChoroplethCopy dataUrl={"/data/national_health_data.csv"} attribute={selectedSecond} num={2} dataStore={centralDataStore}/>
+        <DynamicChoropleth dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst} num={1} dataStore={centralDataStore}/>
+        <DynamicChoroplethCopy dataUrl={"/data/national_health_data.csv"} attribute={selectedSecond} num={2} dataStore={centralDataStore}/>
       </div>
     </main>
   );
