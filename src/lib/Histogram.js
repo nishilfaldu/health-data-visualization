@@ -99,7 +99,8 @@ export class Histogram {
   updateVis(attribute) {
     const vis = this;
 
-    vis.brushedData = this.data.filter(
+    // TODO: switch this to a datastore ?
+    vis.brushedData = vis.data.filter(
       d =>
         d[this.attribute] != -1 &&
           (vis.brushedCounties.length == 0 ||
@@ -109,7 +110,7 @@ export class Histogram {
               )))
     );
 
-    console.log(vis.brushedData, "brushedData");
+    // console.log(vis.brushedData, "brushedData");
     // Set the scale input domains
     vis.xScale.domain([0, d3.max(vis.brushedData, d => d[attribute])]);
 
@@ -231,6 +232,7 @@ export class Histogram {
     } else {
       const range = [_vis.xScale.invert(extent[0]), _vis.xScale.invert(extent[1])];
 
+      //   change this to use central store too? - TODO
       this.brushedCounties = this.data
         .filter(d => {
           const attrVal = d[this.attribute];
@@ -239,6 +241,10 @@ export class Histogram {
         })
         .map(d => d.cnty_fips);
 
+      console.log("here in hist");
+      // update data in datastore
+      this.dataStore.updateData(this.brushedCounties);
+
       this.updateVis(this.attribute);
     }
     _vis.brushG.call(_vis.brush.move, null);
@@ -246,7 +252,7 @@ export class Histogram {
   }
 
   update(data) {
-    this.data = data;
+    this.brushedCounties = data;
     this.updateVis(this.attribute);
   }
 }

@@ -24,7 +24,7 @@ export function ScatterPlot({ dataUrl, xAttribute, yAttribute, dataStore } : Sca
         const filteredData = processedData.filter(d => d[xAttribute] !== -1);
         const _filteredData = filteredData.filter(d => d[yAttribute] !== -1);
 
-        console.log(_filteredData);
+        // console.log(_filteredData);
 
         // Remove the previous chart
         const chartContainer = document.getElementById("scatter-chart-container");

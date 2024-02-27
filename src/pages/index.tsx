@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { BarChart } from "@/components/Charts/BarChart";
 import { Choropleth } from "@/components/Charts/ChoroplethMap";
+import { ChoroplethCopy } from "@/components/Charts/ChoroplethMapCopy";
 import { ScatterPlot } from "@/components/Charts/ScatterPlot";
 import { Navbar } from "@/components/Navbar";
 import { CentralDataStore } from "@/lib/CentralDataStore";
@@ -17,7 +18,7 @@ export default function Home() {
   const [selectedFirst, setSelectedFirst] = useState<string>(attributesInfoArray[0].value);
   const [selectedSecond, setSelectedSecond] = useState<string>(attributesInfoArray[0].value);
 
-  const centralDataStore = new CentralDataStore();
+  const centralDataStore = new CentralDataStore(selectedFirst);
 
   const handleChangeFirst = (value: string) => {
     console.log(`selected ${value}`);
@@ -72,7 +73,7 @@ export default function Home() {
       </div>
       <div className="flex flex-row">
         <Choropleth dataUrl={"/data/national_health_data.csv"} attribute={selectedFirst} num={1} dataStore={centralDataStore}/>
-        <Choropleth dataUrl={"/data/national_health_data.csv"} attribute={selectedSecond} num={2} dataStore={centralDataStore}/>
+        <ChoroplethCopy dataUrl={"/data/national_health_data.csv"} attribute={selectedSecond} num={2} dataStore={centralDataStore}/>
       </div>
     </main>
   );

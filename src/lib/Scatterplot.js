@@ -232,8 +232,16 @@ export class Scatterplot {
         })
         .map(d => d.cnty_fips);
 
+      // update data in datastore
+      this.dataStore.updateData(this.brushedCounties);
+
       this.updateVis(this.xAttribute, this.yAttribute);
     }
     _vis.brushG.call(_vis.brush.move, null);
+  }
+
+  update(data) {
+    this.brushedCounties = data;
+    this.updateVis(this.xAttribute, this.yAttribute);
   }
 }

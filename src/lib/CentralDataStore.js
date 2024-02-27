@@ -1,7 +1,23 @@
+import * as d3 from "d3";
+
+import { processCountiesData } from "./data";
+
+
+
 export class CentralDataStore {
-  constructor() {
+  constructor(_attribute) {
     this.sharedData = [];
     this.subscribers = [];
+    this.attribute = _attribute;
+
+    d3.csv("data/national_health_data.csv")
+      .then(data => {
+        const processedData = processCountiesData(data);
+        const filteredData = processedData.filter(d => d[_attribute] !== -1);
+
+        this.sharedData = filteredData.map(cnty => cnty.cnty_fips);
+        console.log(this.sharedData, "sharedData");
+      });
   }
 
   updateData(data) {
@@ -19,6 +35,7 @@ export class CentralDataStore {
 
   notifySubscribers() {
     this.subscribers.forEach(subscriber => {
+      console.log(subscriber, "subscriber");
       subscriber.update(this.sharedData);
     });
   }

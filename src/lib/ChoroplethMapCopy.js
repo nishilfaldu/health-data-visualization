@@ -6,7 +6,7 @@ import { attributesInfo } from "./data";
 
 
 
-export class ChoroplethMap {
+export class ChoroplethMapCopy {
 //   /**
 //      * Class constructor with basic chart configuration
 //      * @param {Object}
@@ -135,10 +135,8 @@ export class ChoroplethMap {
         [0, 0],
         [vis.config.containerWidth, vis.config.containerHeight],
       ])
-      .on("start", () => (vis.brushedCounties = []))
-      .on("end", result => {
-        return vis.brushed(result, vis);
-      });
+      .on("start", () => (this.brushedCounties = []))
+      .on("end", result => vis.brushed(result, vis));
 
     vis.countiesGroup = vis.g.append("g").attr("id", "counties");
 
@@ -328,15 +326,12 @@ export class ChoroplethMap {
         })
         .map(d => d.properties.cnty_fips);
 
-      console.log("here was called");
-
       // update data in datastore
       this.dataStore.updateData(this.brushedCounties);
 
       //   i changed this? remember
       this.updateVis(this.attribute);
     }
-    _vis.brushG.call(_vis.brush.move, null);
   }
 
   update(data) {
