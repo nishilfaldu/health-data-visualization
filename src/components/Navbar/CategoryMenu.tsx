@@ -34,8 +34,8 @@ const components: { title: string; href: string; description: string }[] = [
         "A React framework for building server-side rendered (SSR) web applications. Next.js provides built-in features for fast and efficient development.",
   },
   {
-    title: "Shadow UI",
-    href: "https://example.com/shadow-ui",
+    title: "shadcn/ui",
+    href: "https://ui.shadcn.com",
     description:
         "A UI component library designed for modern web applications. Shadow UI provides pre-built components and styles for building beautiful user interfaces.",
   },
