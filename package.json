@@ -9,19 +9,34 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-navigation-menu": "^1.1.4",
     "@types/node": "20.11.19",
     "@types/react": "18.2.57",
     "@types/react-dom": "18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "antd": "^5.14.2",
     "autoprefixer": "10.4.17",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "d3": "^6.0.0",
+    "d3-geo": "^3.1.0",
     "eslint": "8.56.0",
     "eslint-config-next": "14.1.0",
+    "lucide-react": "^0.336.0",
     "next": "14.1.0",
     "postcss": "8.4.35",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "tailwind-merge": "^2.2.1",
     "tailwindcss": "3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "topojson": "^3.0.2",
+    "topojson-client": "^3.1.0",
     "typescript": "5.3.3",
     "typescript-eslint": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/topojson-client": "^3.1.4"
   }
 }
