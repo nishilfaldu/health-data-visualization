@@ -61,146 +61,224 @@ export const attributesAvailable = [
 export const attributesInfo = {
   poverty_perc: {
     label: "Poverty (%)",
-    color: "#57B8FF",
+    color: "#FFA500",
   },
   median_household_income: {
     label: "Median Household Income ($)",
-    color: "#FF7557",
+    color: "#FFA500",
   },
   education_less_than_high_school_percent: {
     label: "Education Less Than High School (%)",
-    color: "#A0FF57",
+    color: "#FFA500",
   },
   air_quality: {
     label: "Air Quality",
-    color: "#FF57C6",
+    color: "#008000",
   },
   park_access: {
     label: "Park Access",
-    color: "#FFC657",
+    color: "#008000",
   },
   percent_inactive: {
     label: "Inactive (%)",
-    color: "#57FFD2",
+    color: "#800080",
   },
   percent_smoking: {
     label: "Smoking (%)",
-    color: "#E157FF",
+    color: "#800080",
   },
   urban_rural_status: {
     label: "Urban/Rural Status",
-    color: "#57FF7E",
+    color: "#FFC0CB",
   },
   elderly_percentage: {
     label: "Elderly (%)",
-    color: "#FF5793",
+    color: "#FFC0CB",
   },
   number_of_hospitals: {
     label: "Number of Hospitals",
-    color: "#5757FF",
+    color: "#0000FF",
   },
   number_of_primary_care_physicians: {
     label: "Number of Primary Care Physicians",
-    color: "#FFA957",
+    color: "#0000FF",
   },
   percent_no_heath_insurance: {
     label: "No Health Insurance (%)",
-    color: "#A457FF",
+    color: "#0000FF",
   },
   percent_high_blood_pressure: {
     label: "High Blood Pressure (%)",
-    color: "#FF57A4",
+    color: "#FF0000",
   },
   percent_coronary_heart_disease: {
     label: "Coronary Heart Disease (%)",
-    color: "#57FF97",
+    color: "#FF0000",
   },
   percent_stroke: {
     label: "Stroke (%)",
-    color: "#FF57D1",
+    color: "#FF0000",
   },
   percent_high_cholesterol: {
     label: "High Cholesterol (%)",
-    color: "#5793FF",
+    color: "#FF0000",
   },
 };
+
+
+// export const attributesInfoArray = [
+//   {
+//     value: "poverty_perc",
+//     label: "Poverty",
+//     color: "#57B8FF",
+//   },
+//   {
+//     value: "median_household_income",
+//     label: "Median Household Income",
+//     color: "#FF7557",
+//   },
+//   {
+//     value: "education_less_than_high_school_percent",
+//     label: "Education Less Than High School",
+//     color: "#A0FF57",
+//   },
+//   {
+//     value: "air_quality",
+//     label: "Air Quality",
+//     color: "#FF57C6",
+//   },
+//   {
+//     value: "park_access",
+//     label: "Park Access",
+//     color: "#FFC657",
+//   },
+//   {
+//     value: "percent_inactive",
+//     label: "Inactive",
+//     color: "#57FFD2",
+//   },
+//   {
+//     value: "percent_smoking",
+//     label: "Smoking",
+//     color: "#E157FF",
+//   },
+//   {
+//     value: "elderly_percentage",
+//     label: "Elderly",
+//     color: "#FF5793",
+//   },
+//   {
+//     value: "number_of_hospitals",
+//     label: "Number of Hospitals",
+//     color: "#5757FF",
+//   },
+//   {
+//     value: "number_of_primary_care_physicians",
+//     label: "Number of Primary Care Physicians",
+//     color: "#FFA957",
+//   },
+//   {
+//     value: "percent_no_heath_insurance",
+//     label: "No Health Insurance",
+//     color: "#A457FF",
+//   },
+//   {
+//     value: "percent_high_blood_pressure",
+//     label: "High Blood Pressure",
+//     color: "#FF57A4",
+//   },
+//   {
+//     value: "percent_coronary_heart_disease",
+//     label: "Coronary Heart Disease",
+//     color: "#57FF97",
+//   },
+//   {
+//     value: "percent_stroke",
+//     label: "Stroke",
+//     color: "#FF57D1",
+//   },
+//   {
+//     value: "percent_high_cholesterol",
+//     label: "High Cholesterol",
+//     color: "#5793FF",
+//   },
+// ];
 
 
 export const attributesInfoArray = [
   {
     value: "poverty_perc",
     label: "Poverty",
-    color: "#57B8FF",
+    color: "#FFA500", // Orange
   },
   {
     value: "median_household_income",
     label: "Median Household Income",
-    color: "#FF7557",
+    color: "#008000", // Green
   },
   {
     value: "education_less_than_high_school_percent",
     label: "Education Less Than High School",
-    color: "#A0FF57",
+    color: "#800080", // Purple
   },
   {
     value: "air_quality",
     label: "Air Quality",
-    color: "#FF57C6",
+    color: "#008080", // Teal
   },
   {
     value: "park_access",
     label: "Park Access",
-    color: "#FFC657",
+    color: "#32CD32", // Lime Green
   },
   {
     value: "percent_inactive",
     label: "Inactive",
-    color: "#57FFD2",
+    color: "#800080", // Purple (same as Personal Habits)
   },
   {
     value: "percent_smoking",
     label: "Smoking",
-    color: "#E157FF",
+    color: "#800080", // Purple (same as Personal Habits)
   },
   {
     value: "elderly_percentage",
     label: "Elderly",
-    color: "#FF5793",
+    color: "#FFC0CB", // Pink
   },
   {
     value: "number_of_hospitals",
     label: "Number of Hospitals",
-    color: "#5757FF",
+    color: "#0000FF", // Blue
   },
   {
     value: "number_of_primary_care_physicians",
     label: "Number of Primary Care Physicians",
-    color: "#FFA957",
+    color: "#0000FF", // Blue (same as Health Care System)
   },
   {
     value: "percent_no_heath_insurance",
     label: "No Health Insurance",
-    color: "#A457FF",
+    color: "#0000FF", // Blue (same as Health Care System)
   },
   {
     value: "percent_high_blood_pressure",
     label: "High Blood Pressure",
-    color: "#FF57A4",
+    color: "#FF0000", // Red
   },
   {
     value: "percent_coronary_heart_disease",
     label: "Coronary Heart Disease",
-    color: "#57FF97",
+    color: "#FF0000", // Red (same as Personal Health)
   },
   {
     value: "percent_stroke",
     label: "Stroke",
-    color: "#FF57D1",
+    color: "#FF0000", // Red (same as Personal Health)
   },
   {
     value: "percent_high_cholesterol",
     label: "High Cholesterol",
-    color: "#5793FF",
+    color: "#FF0000", // Red (same as Personal Health)
   },
 ];
-
